@@ -33,7 +33,7 @@ module RailsBootstrapTabs::Renderers
         tabs.map do |tab|
           options = tab.options
           content_tag :li, class: ('active' if options[:active]) do
-            link_to tab.name, "##{options[:anchor]}", class: "##{options[:link_class]}", data: { toggle: 'tab' }
+            link_to tab.name, "##{options[:anchor]}", class: "#{options[:link_class]}", data: { toggle: 'tab' }
           end
         end.join("\n").html_safe
       end
