@@ -1,3 +1,3 @@
 module RailsBootstrapTabs
-  VERSION = '0.1.2'.freeze
+  VERSION = '0.2.4'.freeze
 end

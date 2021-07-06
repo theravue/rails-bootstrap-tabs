@@ -8,8 +8,9 @@ module RailsBootstrapTabs::Renderers
       @tabs = []
     end
 
-    def rstr
-      (0...8).map { ('a'.ord + rand(26)).chr }.join
+    def rstr(seed)
+      rnd = Random.new(seed)
+      (0...8).map { ('a'.ord + rnd.rand(26)).chr }.join
     end
 
     def render
@@ -20,7 +21,8 @@ module RailsBootstrapTabs::Renderers
 
     def prepare_tabs
       @tabs.each.with_index do |tab, index|
-        tab.options[:anchor] ||= "tab-#{index}-#{rstr}"
+        tab.options[:anchor] ||= "tab-#{index}-#{rstr(index)}"
+        tab.options[:fade_effect] ||= RailsBootstrapTabs.fade_effect || @options[:fade_effect]
       end
       active_tab = @tabs.find { |t| t.options[:active] }
       active_tab ||= @tabs.first
@@ -29,30 +31,39 @@ module RailsBootstrapTabs::Renderers
     end
 
     def render_tabs(tabs)
-      content_tag :ul, class: 'nav nav-tabs' do
+      render_tabs_wrapper do
         tabs.map do |tab|
-          options = tab.options
-          content_tag :li, class: ('active' if options[:active]) do
-            link_to tab.name, "##{options[:anchor]}", class: "#{options[:link_class]}", data: { toggle: 'tab' }
+          render_tab(tab) do
+            tab.name
           end
         end.join("\n").html_safe
       end
     end
 
     def render_panes(tabs, options)
-      content_class = 'tab-content'
-      content_class << " #{options[:content_class]}" if options[:content_class]
-
-      content_tag :div, class: content_class do
+      render_panes_wrapper(options) do
         tabs.map do |tab|
-          options = tab.options
-          pane_class = 'tab-pane'
-          pane_class << ' active' if options[:active]
-          content_tag :div, id: options[:anchor].to_s, class: pane_class do
+          render_pane(tab) do
             tab.block.call if tab.block
           end
         end.join("\n").html_safe
       end
+    end
+
+    def render_tabs_wrapper
+      raise "Must be redefined"
+    end
+
+    def render_tab(tab)
+      raise "Must be redefined"
+    end
+
+    def render_panes_wrapper(options)
+      raise "Must be redefined"
+    end
+
+    def render_pane(tab)
+      raise "Must be redefined"
     end
 
     def tab(name, options, &block)
